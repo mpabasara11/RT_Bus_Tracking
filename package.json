@@ -1,0 +1,26 @@
+{
+  "name": "rt_bus_tracking",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mpabasara11/RT_Bus_Tracking.git"
+  },
+  "author": "M.L.M.Pabasara",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mpabasara11/RT_Bus_Tracking/issues"
+  },
+  "homepage": "https://github.com/mpabasara11/RT_Bus_Tracking#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.17.1"
+  }
+}
