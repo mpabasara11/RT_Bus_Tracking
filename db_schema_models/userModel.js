@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
     lastName: String,
     email: String,
     nic: String,
+    status:Boolean 
     // other fields if needed...
     });
         
