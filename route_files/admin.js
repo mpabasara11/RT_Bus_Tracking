@@ -178,6 +178,51 @@ router.post('/users', (req, res) => {
         });
 });
 
+
+// update only status of a user by userName
+router.patch('/users/:userName/status', (req, res) => {
+    const userNameParam = req.params.userName;
+
+    // Joi schema for validation (only status now)
+    const userSchema = Joi.object({
+        status: Joi.boolean().required()
+    });
+
+    // Validate request body
+    const { error, value } = userSchema.validate(req.body);
+    if (error) return res.status(400).json({ error: error.details[0].message });
+
+    const { status } = value;
+
+    // Check if user exists
+    User.findOne({ userName: userNameParam })
+        .then(user => {
+            if (!user) {
+                console.log('User not found');
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            // Update only status
+            user.status = status;
+
+            // Save updated user
+            user.save()
+                .then(() => {
+                    console.log('User status updated successfully');
+                    res.status(200).json({ message: 'User status updated successfully', user });
+                })
+                .catch(err => {
+                    console.error('Error while saving the user:', err);
+                    res.status(500).json({ error: 'Internal server error' });
+                });
+        })
+        .catch(err => {
+            console.error('Error while checking user:', err);
+            res.status(500).json({ error: 'Internal server error' });
+        });
+});
+
+
  
  //delete user by userName
  router.delete('/users/:userName', (req, res) => {
@@ -328,7 +373,51 @@ router.post('/routes', (req, res) => {
                  });
          });
  });
- 
+
+// update only status of a route by routeNumber
+router.patch('/routes/:routeNumber/status', (req, res) => {
+    const routeNumber = req.params.routeNumber;
+
+    // Joi schema for validation (only status now)
+    const routeSchema = Joi.object({
+        status: Joi.boolean().required()
+    });
+
+    // Validate request body
+    const { error, value } = routeSchema.validate(req.body);
+    if (error) return res.status(400).json({ error: error.details[0].message });
+
+    const { status } = value;
+
+    // Check if route exists
+    Route.findOne({ routeNumber })
+        .then(route => {
+            if (!route) {
+                console.log('Route not found');
+                return res.status(404).json({ error: 'Route not found' });
+            }
+
+            // Update only status
+            route.status = status;
+
+            // Save updated route
+            route.save()
+                .then(() => {
+                    console.log('Route status updated successfully');
+                    res.status(200).json({ message: 'Route status updated successfully', route });
+                })
+                .catch(err => {
+                    console.error('Error while updating the route status:', err);
+                    res.status(500).json({ error: 'Internal server error' });
+                });
+        })
+        .catch(err => {
+            console.error('Error while checking route:', err);
+            res.status(500).json({ error: 'Internal server error' });
+        });
+});
+
+
 
 //delete route by routeNumber
 router.delete('/routes/:routeNumber', (req, res) => {
@@ -406,18 +495,19 @@ router.post('/buses', (req, res) => {
 
     // Joi schema for bus validation
     const busSchema = Joi.object({
-        busId: Joi.string().required(),       // unique bus identifier
+        busId: Joi.string().required(),       
         busNumber: Joi.string().required(),
         operatorUsername: Joi.string().required(),
         routeId: Joi.string().required(),
-        status: Joi.boolean().required()
+        workflowStatus: Joi.string().valid('pending', 'active' , 'inactive').required()
+      
     });
 
     // Validate request body
     const { error, value } = busSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details[0].message });
 
-    const { busId, busNumber, operatorUsername, routeId, status } = value;
+    const { busId, busNumber, operatorUsername, routeId, workflowStatus  } = value;
 
     // Check if operator exists and is not admin
     User.findOne({ userName: operatorUsername })
@@ -462,7 +552,8 @@ router.post('/buses', (req, res) => {
                                         busNumber,
                                         operatorUsername,
                                         routeId,
-                                        status
+                                        workflowStatus,
+
                                     });
 
                                     // Save to DB
@@ -499,14 +590,14 @@ router.put('/buses/:busId', (req, res) => {
         busNumber: Joi.string().required(),
         operatorUsername: Joi.string().required(),
         routeId: Joi.string().required(),
-        status: Joi.boolean().required()
+        workflowStatus: Joi.string().valid('pending', 'active' , 'inactive').required()
     });
 
     // Validate request body
     const { error, value } = busSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details[0].message });
 
-    const { busNumber, operatorUsername, routeId, status } = value;
+    const { busNumber, operatorUsername, routeId, workflowStatus } = value;
 
     // Check if operator exists and is not admin
     User.findOne({ userName: operatorUsername })
@@ -549,7 +640,7 @@ router.put('/buses/:busId', (req, res) => {
                                     bus.busNumber = busNumber;
                                     bus.operatorUsername = operatorUsername;
                                     bus.routeId = routeId;
-                                    bus.status = status;
+                                    bus.workflowStatus = workflowStatus;
 
                                     // Save updated bus
                                     bus.save()
@@ -574,6 +665,51 @@ router.put('/buses/:busId', (req, res) => {
             res.status(500).json({ error: 'Internal server error' });
         });
 });
+
+
+// update only workflowStatus of a bus by busId
+router.patch('/buses/:busId/workflowStatus', (req, res) => {
+    const busIdParam = req.params.busId;
+
+    // Joi schema for validation (only workflowStatus now)
+    const busSchema = Joi.object({
+        workflowStatus: Joi.string().valid('pending', 'active', 'inactive').required()
+    });
+
+    // Validate request body
+    const { error, value } = busSchema.validate(req.body);
+    if (error) return res.status(400).json({ error: error.details[0].message });
+
+    const { workflowStatus } = value;
+
+    // Check if bus exists
+    Bus.findOne({ busId: busIdParam })
+        .then(bus => {
+            if (!bus) {
+                console.log('Bus not found');
+                return res.status(404).json({ error: 'Bus not found' });
+            }
+
+            // Update only workflowStatus
+            bus.workflowStatus = workflowStatus;
+
+            // Save updated bus
+            bus.save()
+                .then(() => {
+                    console.log('Workflow status updated successfully');
+                    res.status(200).json({ message: 'Workflow status updated successfully', bus });
+                })
+                .catch(err => {
+                    console.error('Error while saving the bus:', err);
+                    res.status(500).json({ error: 'Internal server error' });
+                });
+        })
+        .catch(err => {
+            console.error('Error while checking bus:', err);
+            res.status(500).json({ error: 'Internal server error' });
+        });
+});
+
 
 //delete bus with busId
 router.delete('/buses/:busId', (req, res) => {
@@ -602,9 +738,9 @@ router.delete('/buses/:busId', (req, res) => {
         });
 });
 
-// Get buses | filter by busId busNumber, operatorUsername, routeId, status
+// Get buses | filter by busId busNumber, operatorUsername, routeId, workflowStatus
 router.get('/buses', (req, res) => {
-    const {busId , busNumber, operatorUsername, routeId, status } = req.query;
+    const {busId , busNumber, operatorUsername, routeId, workflowStatus } = req.query;
 
     let filter = {};
 
@@ -612,7 +748,7 @@ router.get('/buses', (req, res) => {
     if (busNumber) filter.busNumber = busNumber;
     if (operatorUsername) filter.operatorUsername = operatorUsername;
     if (routeId) filter.routeId = routeId;
-    if (status !== undefined) filter.status = status === 'true'; // convert string to boolean
+    if (workflowStatus) filter.workflowStatus = workflowStatus;
 
     Bus.find(filter)
         .then(buses => {
