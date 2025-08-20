@@ -180,7 +180,7 @@ router.post('/users', (req, res) => {
 
 
 // update only status of a user by userName
-router.patch('/users/:userName', (req, res) => {
+router.patch('/users/:userName/status', (req, res) => {
     const userNameParam = req.params.userName;
 
     // Joi schema for validation (only status now)
@@ -375,7 +375,7 @@ router.post('/routes', (req, res) => {
  });
 
 // update only status of a route by routeNumber
-router.patch('/routes/:routeNumber', (req, res) => {
+router.patch('/routes/:routeNumber/status', (req, res) => {
     const routeNumber = req.params.routeNumber;
 
     // Joi schema for validation (only status now)
@@ -668,7 +668,7 @@ router.put('/buses/:busId', (req, res) => {
 
 
 // update only workflowStatus of a bus by busId
-router.patch('/buses/:busId', (req, res) => {
+router.patch('/buses/:busId/workflowStatus', (req, res) => {
     const busIdParam = req.params.busId;
 
     // Joi schema for validation (only workflowStatus now)

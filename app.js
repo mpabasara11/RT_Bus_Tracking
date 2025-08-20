@@ -82,8 +82,8 @@ app.use((req, res, next) => {
 //connect admin routes 
 app.use('/admin',adminRoutes);
 
-//connect admin routes 
-//app.use('/busOperator',busOperatorRoutes);
+//connect bus operator routes 
+app.use('/busOperator',busOperatorRoutes);
 
 //connect admin routes 
 //app.use('/commuter',commuterRoutes);
