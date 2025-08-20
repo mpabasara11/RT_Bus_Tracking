@@ -4,10 +4,9 @@ const mongoose = require('mongoose');
 const routeSchema = new mongoose.Schema({
     routeNumber: String,
     routeName: String,
-    startLocation: String,
-    endLocation: String,
-    distance: String,
-    status:Boolean 
+    day: String,
+    departureTime: String,
+    arrivalTime: String 
     // other fields if needed...
     });
         

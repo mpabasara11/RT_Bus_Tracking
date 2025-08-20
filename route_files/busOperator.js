@@ -104,7 +104,7 @@ router.patch('/buses/:busId/workflowStatus', (req, res) => {
 
     // Joi schema for validation 
     const busSchema = Joi.object({
-        workflowStatus: Joi.string().valid('inactive').required()
+        workflowStatus: Joi.string().valid('inactive' , 'pending').required()
     });
 
     // Validate request body
@@ -203,7 +203,6 @@ router.patch('/buses/:busId/location', (req, res) => {
             res.status(500).json({ error: 'Internal server error' });
         });
 });
-
 
 
 //delete bus with busId //only owned busses can be deleted
