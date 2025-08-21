@@ -7,7 +7,7 @@ const scheduleSchema = new mongoose.Schema({
     routeNumber: String,
     day: String,
     distance: String,
-    confirmationStatus:String 
+    confirmationStatus:{ type:String, default: "pending" }
     // other fields if needed...
     });
         

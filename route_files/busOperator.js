@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const User = require('../db_schema_models/userModel.js');
 const Route = require('../db_schema_models/routeModel.js');
 const Bus = require('../db_schema_models/busModel.js');
+const Schedule = require('../db_schema_models/scheduleModel.js');
 
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
@@ -96,7 +97,6 @@ router.post('/buses', (req, res) => {
         });
 });
 
-//////////////////////////////////////////////from here
 // Update only workflowStatus of a bus by busId (inactive the bus)
 router.patch('/buses/:busId/workflowStatus', (req, res) => {
     const busIdParam = req.params.busId;
@@ -104,7 +104,7 @@ router.patch('/buses/:busId/workflowStatus', (req, res) => {
 
     // Joi schema for validation 
     const busSchema = Joi.object({
-        workflowStatus: Joi.string().valid('inactive' , 'pending').required()
+        workflowStatus: Joi.string().valid('inactive' ).required()
     });
 
     // Validate request body
@@ -125,6 +125,11 @@ router.patch('/buses/:busId/workflowStatus', (req, res) => {
             if (bus.operatorUsername !== loggedInUsername) {
                 console.log('Not authorized to update this bus');
                 return res.status(403).json({ error: 'Not authorized to update this bus' });
+            }
+
+            if(bus.workflowStatus== "pending"){
+                console.log('Not authorized to update pending buses');
+                return res.status(403).json({ error: 'Not authorized to update pending buses' });
             }
 
             // Update only workflowStatus
@@ -226,7 +231,20 @@ router.delete('/buses/:busId', (req, res) => {
             bus.deleteOne()
                 .then(() => {
                     console.log('Bus deleted successfully');
-                    res.status(200).json({ message: 'Bus deleted successfully' });
+                   // res.status(200).json({ message: 'Bus deleted successfully' });
+
+   // After deleting the bus, delete schedules associated with it
+   Schedule.deleteMany({ busId: busId })
+   .then(() => {
+       console.log('Associated schedules deleted successfully');
+       res.status(200).json({ message: 'Bus and associated schedules deleted successfully' });
+   })
+   .catch(error => {
+       console.error('Bus deleted but failed to delete schedules:', error);
+       res.status(200).json({ message: 'Bus deleted but failed to delete schedules' });
+   });
+
+
                 })
                 .catch(error => {
                     console.error('Error while deleting the bus:', error);
@@ -265,7 +283,6 @@ router.get('/buses', (req, res) => {
 });
 
 
-
 //////////////////////////////route management///////////////////////////////////////////
 
  //get bus routes | filter by routeName routeNumber startLocation endLocation status
@@ -293,6 +310,90 @@ router.get('/buses', (req, res) => {
 });
 
 
- 
+
+//////////////////////////////schedule management///////////////////////////////////////////
+
+
+//update schedule confirmationStatus by scheduleId   //accept or reject when it is pending
+router.patch('/schedules/:scheduleId/confirmationStatus', (req, res) => {
+    const scheduleId = req.params.scheduleId;
+
+    // Joi schema for validation (only status now)
+    const scheduleSchema = Joi.object({
+        confirmationStatus: Joi.string().valid('accepted', 'rejected').required()
+    });
+
+    // Validate request body
+    const { error, value } = scheduleSchema.validate(req.body);
+    if (error) return res.status(400).json({ error: error.details[0].message });
+
+    const { confirmationStatus } = value;
+
+    // Check if schedule exists
+    Schedule.findOne({ scheduleId })
+        .then(schedule => {
+            if (!schedule) {
+                console.log('Schedule not found');
+                return res.status(404).json({ error: 'Schedule not found' });
+            }
+
+            if(schedule.confirmationStatus=="accepted")
+            {
+                console.log('Not authorized to update already accepted schedules');
+                return res.status(403).json({ error: 'Not authorized to update already accepted schedules' });
+            }
+            if(schedule.confirmationStatus=="rejected")
+            {
+                console.log('Not authorized to update already rejected schedules');
+                return res.status(403).json({ error: 'Not authorized to update already rejected schedules' });
+            }
+
+            // Update only confirmationStatus
+            schedule.confirmationStatus = confirmationStatus;
+
+            // Save updated schedule
+            schedule.save()
+                .then(() => {
+                    console.log('schedule confirmationStatus updated successfully');
+                    res.status(200).json({ message: 'schedule confirmationStatus updated successfully', schedule });
+                })
+                .catch(err => {
+                    console.error('Error while updating the schedule confirmationStatus:', err);
+                    res.status(500).json({ error: 'Internal server error' });
+                });
+        })
+        .catch(err => {
+            console.error('Error while checking schedule:', err);
+            res.status(500).json({ error: 'Internal server error' });
+        });
+});
+
+ // Get schedules | filter by scheduleId busId, routeNumber, day, distance , confirmationStatus
+router.get('/schedules', (req, res) => {
+    const {scheduleId , busId, routeNumber, day, distance , confirmationStatus } = req.query;
+
+    let filter = {};
+
+    if (scheduleId) filter.scheduleId = scheduleId;
+    if (busId) filter.busId = busId;
+    if (routeNumber) filter.routeNumber = routeNumber;
+    if (day) filter.day = day;
+    if (distance) filter.distance = distance;
+    if (confirmationStatus) filter.confirmationStatus = confirmationStatus;
+
+    Schedule.find(filter)
+        .then(schedule => {
+            if (schedule.length === 0) {
+                return res.status(404).json({ error: 'No schedule found' });
+            }
+            res.status(200).json(schedule);
+        })
+        .catch(err => {
+            console.error('Error fetching schedules:', err);
+            res.status(500).json({ error: 'Internal server error' });
+        });
+});
+
+
 module.exports = router;
 

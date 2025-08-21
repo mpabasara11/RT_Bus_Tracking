@@ -727,7 +727,23 @@ router.delete('/buses/:busId', (req, res) => {
             bus.deleteOne()
                 .then(() => {
                     console.log('Bus deleted');
-                    res.status(200).json({ message: 'Bus deleted' });
+                   // res.status(200).json({ message: 'Bus deleted' });
+
+
+
+   // After deleting the bus, delete schedules associated with it
+   Schedule.deleteMany({ busId: busId })
+   .then(() => {
+       console.log('Associated schedules deleted successfully');
+       res.status(200).json({ message: 'Bus and associated schedules deleted successfully' });
+   })
+   .catch(error => {
+       console.error('Bus deleted but failed to delete schedules:', error);
+       res.status(200).json({ message: 'Bus deleted but failed to delete schedules' });
+   });
+
+
+
                 })
                 .catch(error => {
                     console.error('Error while deleting the bus:', error);
@@ -778,14 +794,14 @@ router.post('/schedules', (req, res) => {
         routeNumber: Joi.string().required(),
         day: Joi.string().valid('sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat').required(),
         distance: Joi.string().required(),
-        confirmationStatus: Joi.string().valid('pending', 'accepted', 'rejected').required()
+      
     });
 
     // Validate request body
     const { error, value } = scheduleSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details[0].message });
 
-    const { scheduleId, busId, routeNumber, day, distance, confirmationStatus } = value;
+    const { scheduleId, busId, routeNumber, day, distance } = value;
 
     // 1. Check if scheduleId already exists
     Schedule.findOne({ scheduleId })
@@ -818,7 +834,7 @@ router.post('/schedules', (req, res) => {
                                 routeNumber,
                                 day,
                                 distance,
-                                confirmationStatus
+                                
                             });
 
                             // Save to DB
@@ -919,49 +935,6 @@ router.put('/schedules/:scheduleId', (req, res) => {
                 })
                 .catch(err => {
                     console.error('Error while checking bus:', err);
-                    res.status(500).json({ error: 'Internal server error' });
-                });
-        })
-        .catch(err => {
-            console.error('Error while checking schedule:', err);
-            res.status(500).json({ error: 'Internal server error' });
-        });
-});
-
-//update schedule confirmationStatus by scheduleId                   ///not needed for admin
-router.patch('/schedules/:scheduleId/confirmationStatus', (req, res) => {
-    const scheduleId = req.params.scheduleId;
-
-    // Joi schema for validation (only status now)
-    const scheduleSchema = Joi.object({
-        confirmationStatus: Joi.string().valid('pending', 'accepted', 'rejected').required()
-    });
-
-    // Validate request body
-    const { error, value } = scheduleSchema.validate(req.body);
-    if (error) return res.status(400).json({ error: error.details[0].message });
-
-    const { confirmationStatus } = value;
-
-    // Check if schedule exists
-    Schedule.findOne({ scheduleId })
-        .then(schedule => {
-            if (!schedule) {
-                console.log('Schedule not found');
-                return res.status(404).json({ error: 'Schedule not found' });
-            }
-
-            // Update only confirmationStatus
-            schedule.confirmationStatus = confirmationStatus;
-
-            // Save updated schedule
-            schedule.save()
-                .then(() => {
-                    console.log('schedule confirmationStatus updated successfully');
-                    res.status(200).json({ message: 'schedule confirmationStatus updated successfully', schedule });
-                })
-                .catch(err => {
-                    console.error('Error while updating the schedule confirmationStatus:', err);
                     res.status(500).json({ error: 'Internal server error' });
                 });
         })
