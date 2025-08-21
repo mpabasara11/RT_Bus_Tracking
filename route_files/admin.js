@@ -4,6 +4,8 @@ const mongoose = require('mongoose')
 const User = require('../db_schema_models/userModel.js');
 const Route = require('../db_schema_models/routeModel.js');
 const Bus = require('../db_schema_models/busModel.js');
+const Schedule = require('../db_schema_models/scheduleModel.js');
+
 
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
@@ -764,8 +766,264 @@ router.get('/buses', (req, res) => {
 });
 
  
+//////////////////////////////////////schedule management ////////////////////////////////////////
+
+//create schedule
+router.post('/schedules', (req, res) => {
+
+    // Joi schema for schedule validation
+    const scheduleSchema = Joi.object({
+        scheduleId: Joi.string().required(),
+        busId: Joi.string().required(),
+        routeNumber: Joi.string().required(),
+        day: Joi.string().valid('sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat').required(),
+        distance: Joi.string().required(),
+        confirmationStatus: Joi.string().valid('pending', 'accepted', 'rejected').required()
+    });
+
+    // Validate request body
+    const { error, value } = scheduleSchema.validate(req.body);
+    if (error) return res.status(400).json({ error: error.details[0].message });
+
+    const { scheduleId, busId, routeNumber, day, distance, confirmationStatus } = value;
+
+    // 1. Check if scheduleId already exists
+    Schedule.findOne({ scheduleId })
+        .then(existingSchedule => {
+            if (existingSchedule) {
+                console.log('Schedule ID already exists');
+                return res.status(409).json({ error: 'Schedule ID already exists' });
+            }
+
+            // 2. Check if bus exists
+            Bus.findOne({ busId })
+                .then(existingBus => {
+                    if (!existingBus) {
+                        console.log('Bus ID not found');
+                        return res.status(404).json({ error: 'Bus ID not found' });
+                    }
+
+                    // 3. Check if route exists
+                    Route.findOne({ routeNumber: routeNumber })
+                        .then(existingRoute => {
+                            if (!existingRoute) {
+                                console.log('Route ID not found');
+                                return res.status(404).json({ error: 'Route ID not found' });
+                            }
+
+                            // 4. Create new schedule
+                            const newSchedule = new Schedule({
+                                scheduleId,
+                                busId,
+                                routeNumber,
+                                day,
+                                distance,
+                                confirmationStatus
+                            });
+
+                            // Save to DB
+                            newSchedule.save()
+                                .then(() => {
+                                    console.log('Schedule created successfully');
+                                    res.status(201).json({ message: 'Schedule created successfully', schedule: newSchedule });
+                                })
+                                .catch(err => {
+                                    console.error('Error while saving the schedule:', err);
+                                    res.status(500).json({ error: 'Internal server error' });
+                                });
+
+                        })
+                        .catch(err => {
+                            console.error('Error while checking route:', err);
+                            res.status(500).json({ error: 'Internal server error' });
+                        });
+                })
+                .catch(err => {
+                    console.error('Error while checking bus:', err);
+                    res.status(500).json({ error: 'Internal server error' });
+                });
+        })
+        .catch(err => {
+            console.error('Error while checking schedule:', err);
+            res.status(500).json({ error: 'Internal server error' });
+        });
+
+});
 
 
+//update schedule by scheduleId
+router.put('/schedules/:scheduleId', (req, res) => {
+    const scheduleIdParam = req.params.scheduleId;
 
+    // Joi schema for validation
+    const scheduleSchema = Joi.object({
+        busId: Joi.string().required(),
+        routeNumber: Joi.string().required(),
+        day: Joi.string().valid('sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat').required(),
+        distance: Joi.string().required()
+      
+    });
+
+    // Validate request body
+    const { error, value } = scheduleSchema.validate(req.body);
+    if (error) return res.status(400).json({ error: error.details[0].message });
+
+    const { busId, routeNumber, day, distance } = value;
+
+    // Check if schedule exists
+    Schedule.findOne({ scheduleId: scheduleIdParam })
+        .then(schedule => {
+            if (!schedule) {
+                console.log('Schedule not found');
+                return res.status(404).json({ error: 'Schedule not found' });
+            }
+
+            // Check if bus exists
+            Bus.findOne({ busId })
+                .then(existingBus => {
+                    if (!existingBus) {
+                        console.log('Bus ID not found');
+                        return res.status(404).json({ error: 'Bus ID not found' });
+                    }
+
+                    // Check if route exists
+                    Route.findOne({ routeNumber })
+                        .then(existingRoute => {
+                            if (!existingRoute) {
+                                console.log('Route number not found');
+                                return res.status(404).json({ error: 'Route number not found' });
+                            }
+
+                            // Update schedule fields
+                            schedule.busId = busId;
+                            schedule.routeNumber = routeNumber;
+                            schedule.day = day;
+                            schedule.distance = distance;
+                           
+
+                            // Save updated schedule
+                            schedule.save()
+                                .then(() => {
+                                    console.log('Schedule updated successfully');
+                                    res.status(200).json({ message: 'Schedule updated successfully', schedule });
+                                })
+                                .catch(err => {
+                                    console.error('Error while saving the schedule:', err);
+                                    res.status(500).json({ error: 'Internal server error' });
+                                });
+                        })
+                        .catch(err => {
+                            console.error('Error while checking route:', err);
+                            res.status(500).json({ error: 'Internal server error' });
+                        });
+                })
+                .catch(err => {
+                    console.error('Error while checking bus:', err);
+                    res.status(500).json({ error: 'Internal server error' });
+                });
+        })
+        .catch(err => {
+            console.error('Error while checking schedule:', err);
+            res.status(500).json({ error: 'Internal server error' });
+        });
+});
+
+//update schedule confirmationStatus by scheduleId                   ///not needed for admin
+router.patch('/schedules/:scheduleId/confirmationStatus', (req, res) => {
+    const scheduleId = req.params.scheduleId;
+
+    // Joi schema for validation (only status now)
+    const scheduleSchema = Joi.object({
+        confirmationStatus: Joi.string().valid('pending', 'accepted', 'rejected').required()
+    });
+
+    // Validate request body
+    const { error, value } = scheduleSchema.validate(req.body);
+    if (error) return res.status(400).json({ error: error.details[0].message });
+
+    const { confirmationStatus } = value;
+
+    // Check if schedule exists
+    Schedule.findOne({ scheduleId })
+        .then(schedule => {
+            if (!schedule) {
+                console.log('Schedule not found');
+                return res.status(404).json({ error: 'Schedule not found' });
+            }
+
+            // Update only confirmationStatus
+            schedule.confirmationStatus = confirmationStatus;
+
+            // Save updated schedule
+            schedule.save()
+                .then(() => {
+                    console.log('schedule confirmationStatus updated successfully');
+                    res.status(200).json({ message: 'schedule confirmationStatus updated successfully', schedule });
+                })
+                .catch(err => {
+                    console.error('Error while updating the schedule confirmationStatus:', err);
+                    res.status(500).json({ error: 'Internal server error' });
+                });
+        })
+        .catch(err => {
+            console.error('Error while checking schedule:', err);
+            res.status(500).json({ error: 'Internal server error' });
+        });
+});
+
+
+//delete schedule with scheduleId
+router.delete('/schedules/:scheduleId', (req, res) => {
+    const scheduleId = req.params.scheduleId;
+
+    Schedule.findOne({ scheduleId: scheduleId })
+        .then(schedule => {
+            if (!schedule) {
+                console.log('Schedule not found');
+                return res.status(404).json({ error: 'Schedule not found' });
+            }
+
+            schedule.deleteOne()
+                .then(() => {
+                    console.log('Schedule deleted');
+                    res.status(200).json({ message: 'Schedule deleted' });
+                })
+                .catch(error => {
+                    console.error('Error while deleting the Schedule:', error);
+                    res.status(500).json({ error: 'Internal server error' });
+                });
+        })
+        .catch(error => {
+            console.error('Error while finding the Schedule:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        });
+});
+
+
+// Get schedules | filter by scheduleId busId, routeNumber, day, distance , confirmationStatus
+router.get('/schedules', (req, res) => {
+    const {scheduleId , busId, routeNumber, day, distance , confirmationStatus } = req.query;
+
+    let filter = {};
+
+    if (scheduleId) filter.scheduleId = scheduleId;
+    if (busId) filter.busId = busId;
+    if (routeNumber) filter.routeNumber = routeNumber;
+    if (day) filter.day = day;
+    if (distance) filter.distance = distance;
+    if (confirmationStatus) filter.confirmationStatus = confirmationStatus;
+
+    Schedule.find(filter)
+        .then(schedule => {
+            if (schedule.length === 0) {
+                return res.status(404).json({ error: 'No schedule found' });
+            }
+            res.status(200).json(schedule);
+        })
+        .catch(err => {
+            console.error('Error fetching schedules:', err);
+            res.status(500).json({ error: 'Internal server error' });
+        });
+});
 
  module.exports = router;
