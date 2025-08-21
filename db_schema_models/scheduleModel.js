@@ -4,10 +4,10 @@ const mongoose = require('mongoose');
 const scheduleSchema = new mongoose.Schema({
     scheduleId: String,
     busId: String,
-    routeId: String,
+    routeNumber: String,
     day: String,
     distance: String,
-    status:Boolean 
+    confirmationStatus:String 
     // other fields if needed...
     });
         
