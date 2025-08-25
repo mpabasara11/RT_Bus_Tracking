@@ -6,6 +6,8 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
+const { swaggerUi, swaggerSpec } = require('./swagger');
+
 const jwtSecret = "secret"                    //remember to change this
 
 //importing routes
@@ -25,6 +27,11 @@ app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
     next();
   });
+
+
+  // Swagger UI Route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 
 
   //connect auth routes 
@@ -86,6 +93,7 @@ app.use('/admin',adminRoutes);
 
 //connect bus operator routes 
 app.use('/busOperator',busOperatorRoutes);
+
 
 
 
