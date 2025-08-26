@@ -8,7 +8,52 @@ const jwtSecret = "secret"
 const Joi = require('joi');
 
 
+/**
+ * @swagger
+ * tags:
+ *   name: Authentication
+ *   description: Commuter APIs to view routes, buses, and schedules
+ */
 
+/**
+ * @swagger
+ * /auth/signin:
+ *   post:
+ *     summary: Sign in a user
+ *     description: Authenticate user by username and password. Returns JWT in cookie if successful.
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userName
+ *               - password
+ *             properties:
+ *               userName:
+ *                 type: string
+ *                 example: mpabasara11
+ *               password:
+ *                 type: string
+ *                 example: zzzzzz
+ *     responses:
+ *       200:
+ *         description: Successful sign-in
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: User signed in
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Incorrect password
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
 
 
 //sign in
@@ -63,6 +108,27 @@ router.post('/signin', (req, res) => {
         });
 });
 
+
+
+/**
+ * @swagger
+ * /auth/signout:
+ *   post:
+ *     summary: Sign out a user
+ *     description: Clears the JWT cookie and logs the user out.
+ *     tags: [Authentication]
+ *     responses:
+ *       200:
+ *         description: Successful sign-out
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: User signed out
+ *       500:
+ *         description: Internal server error
+ */
+
+
 //sign out
 router.post('/signout',(req,res)=>
     {
@@ -73,6 +139,62 @@ router.post('/signout',(req,res)=>
         res.status(500).json({ message: 'An error occurred while signing out' });
     }
     })
+
+
+/**
+ * @swagger
+ * /auth/password_reset:
+ *   post:
+ *     summary: Reset user password
+ *     description: Allows a user to reset their password by providing the previous password and a new password.
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userName
+ *               - previousPassword
+ *               - password
+ *             properties:
+ *               userName:
+ *                 type: string
+ *                 example: mpabasara11
+ *               previousPassword:
+ *                 type: string
+ *                 example: zzzzzz
+ *               password:
+ *                 type: string
+ *                 example: aaaaaa
+ *     responses:
+ *       200:
+ *         description: Password updated successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Password updated
+ *       401:
+ *         description: Incorrect previous password
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Incorrect previous password
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: User not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Internal server error
+ */
+
 
 
 //password reset
