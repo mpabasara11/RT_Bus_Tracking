@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
 const { swaggerUi, swaggerSpec } = require('./swagger');
 
-const jwtSecret = "secret"                    //remember to change this
+const jwtSecret = "secret"           //remember to change this
 
 //importing routes
 const adminRoutes = require('./route_files/admin.js')
