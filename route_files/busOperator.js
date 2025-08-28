@@ -38,7 +38,7 @@ router.use((req, res, next) => {
 
 /**
  * @swagger
- * /buses:
+ * /busOperator/buses:
  *   post:
  *     summary: Create a new bus
  *     description: Creates a new bus and assigns the currently logged-in user as the operator.
@@ -171,7 +171,7 @@ router.post('/buses', (req, res) => {
 
 /**
  * @swagger
- * /buses/{busId}/workflowStatus:
+ * /busOperator/buses/{busId}/workflowStatus:
  *   patch:
  *     summary: Set a bus workflowStatus to inactive
  *     description: Updates the workflowStatus of a bus to inactive. Only the bus operator can perform this action. Pending buses cannot be updated.
@@ -284,7 +284,7 @@ router.patch('/buses/:busId/workflowStatus', (req, res) => {
 
 /**
  * @swagger
- * /buses/{busId}/location:
+ * /busOperator/buses/{busId}/location:
  *   patch:
  *     summary: Update bus location
  *     description: Updates the latitude and longitude of a bus. Only the bus operator can update the location. The locationLastUpdate timestamp is automatically set to the current time.
@@ -405,7 +405,7 @@ router.patch('/buses/:busId/location', (req, res) => {
 
 /**
  * @swagger
- * /buses/{busId}:
+ * /busOperator/buses/{busId}:
  *   delete:
  *     summary: Delete a bus
  *     description: Deletes a bus and all its associated schedules. Only the operator who owns the bus can delete it.
@@ -496,9 +496,9 @@ router.delete('/buses/:busId', (req, res) => {
 
 /**
  * @swagger
- * /buses:
+ * /busOperator/buses:
  *   get:
- *     summary: Get operator-owned buses
+ *     summary: Get operator-owned buses with optional filters
  *     description: Retrieve all buses owned by the logged-in operator. Supports filtering by busId, busNumber, routeId, and workflowStatus.
  *     tags: [Bus Operator]
  *     security:
@@ -582,9 +582,9 @@ router.get('/buses', (req, res) => {
 //////////////////////////////route management///////////////////////////////////////////
 /**
  * @swagger
- * /routes:
+ * /busOperator/routes:
  *   get:
- *     summary: Get bus routes
+ *     summary: Get bus routes with optional filters
  *     description: Retrieve all bus routes with optional filters.
  *     tags: [Bus Operator]
  *     parameters:
@@ -669,7 +669,7 @@ router.get('/routes', (req, res) => {
 
 /**
  * @swagger
- * /schedules/{scheduleId}/confirmationStatus:
+ * /busOperator/schedules/{scheduleId}/confirmationStatus:
  *   patch:
  *     summary: Update the confirmation status of a schedule
  *     description: Accept or reject a schedule when it is pending. Once accepted or rejected, it cannot be updated.
@@ -783,7 +783,7 @@ router.patch('/schedules/:scheduleId/confirmationStatus', (req, res) => {
 
 /**
  * @swagger
- * /schedules:
+ * /busOperator/schedules:
  *   get:
  *     summary: Retrieve schedules with optional filters
  *     description: Get a list of schedules filtered by scheduleId, busId, routeNumber, day, distance, or confirmationStatus.

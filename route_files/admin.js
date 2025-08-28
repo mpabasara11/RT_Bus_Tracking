@@ -477,7 +477,7 @@ router.delete('/users/:userName', (req, res) => {
  * @swagger
  * /admin/users:
  *   get:
- *     summary: Get all users with optional filters
+ *     summary: Get users with optional filters
  *     description: Retrieves a list of users. You can filter users by userName, userRole, firstName, lastName, nic, or status.
  *     tags: [Admin]
  *     parameters:
@@ -605,8 +605,8 @@ router.get('/users', (req, res) => {
  *                 type: string
  *                 example: gampaha
  *               distance:
- *                 type: number
- *                 example: 12.5
+ *                 type: string
+ *                 example: 12.5km
  *               status:
  *                 type: boolean
  *                 example: true
@@ -622,7 +622,7 @@ router.get('/users', (req, res) => {
  *                routeName: colombo to gampaha
  *                startLocation: colombo
  *                endLocation: gampaha
- *                distance: 12.5
+ *                distance: 12.5km
  *                status: true
  *       400:
  *         description: Validation error (invalid input)
@@ -646,7 +646,7 @@ router.post('/routes', (req, res) => {
         routeName: Joi.string().required(),
         startLocation: Joi.string().required(),
         endLocation: Joi.string().required(),
-        distance: Joi.number().positive().required(),
+        distance: Joi.string().required(),
         status: Joi.boolean().required()
     });
 
@@ -724,8 +724,8 @@ router.post('/routes', (req, res) => {
  *                 type: string
  *                 example: gampaha
  *               distance:
- *                 type: number
- *                 example: 12.5
+ *                 type: string
+ *                 example: 12.50km
  *               status:
  *                 type: boolean
  *                 example: true
@@ -758,7 +758,7 @@ router.put('/routes/:routeNumber', (req, res) => {
         routeName: Joi.string().required(),
         startLocation: Joi.string().required(),
         endLocation: Joi.string().required(),
-        distance: Joi.number().positive().required(),
+        distance: Joi.string().required(),
         status: Joi.boolean().required()
     });
 
@@ -971,7 +971,7 @@ router.delete('/routes/:routeNumber', (req, res) => {
  * @swagger
  * /admin/routes:
  *   get:
- *     summary: Get all bus routes with optional filters
+ *     summary: Get bus routes with optional filters
  *     description: Retrieves a list of bus routes. You can filter routes by routeNumber, routeName, startLocation, endLocation, or status.
  *     tags: [Admin]
  *     parameters:
@@ -1533,7 +1533,7 @@ router.delete('/buses/:busId', (req, res) => {
  * @swagger
  * /admin/buses:
  *   get:
- *     summary: Get all buses with optional filters
+ *     summary: Get buses with optional filters
  *     description: Retrieves a list of buses. You can filter buses by busId, busNumber, operatorUsername, routeId, or workflowStatus.
  *     tags: [Admin]
  *     parameters:
@@ -1959,7 +1959,7 @@ router.delete('/schedules/:scheduleId', (req, res) => {
  * @swagger
  * /admin/schedules:
  *   get:
- *     summary: Get schedules
+ *     summary: Get schedules with optional filters
  *     description: Retrieve all schedules or filter them by scheduleId, busId, routeNumber, day, distance, or confirmationStatus.
  *     tags: [Admin]
  *     parameters:

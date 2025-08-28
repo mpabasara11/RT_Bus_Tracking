@@ -23,7 +23,7 @@ const Joi = require('joi');
  * @swagger
  * /commuter/routes:
  *   get:
- *     summary: View routes
+ *     summary: View routes with optional filters
  *     description: Fetch bus routes with optional filters by routeNumber, routeName, startLocation, endLocation.
  *     tags: [Commuter]
  *     parameters:
@@ -31,25 +31,21 @@ const Joi = require('joi');
  *         name: routeNumber
  *         schema:
  *           type: string
- *           example: r001
  *         description: Filter by route number
  *       - in: query
  *         name: routeName
  *         schema:
  *           type: string
- *           example: rn01
  *         description: Filter by route name
  *       - in: query
  *         name: startLocation
  *         schema:
  *           type: string
- *           example: colombo
  *         description: Filter by start location
  *       - in: query
  *         name: endLocation
  *         schema:
  *           type: string
- *           example: gampaha
  *         description: Filter by end location
  *     responses:
  *       200:
@@ -98,7 +94,7 @@ router.get('/routes', (req, res) => {
  * @swagger
  * /commuter/buses:
  *   get:
- *     summary: View buses
+ *     summary: View buses with optional filters
  *     description: Fetch active buses with optional filters by busId, busNumber, operatorUsername, routeId.
  *     tags: [Commuter]
  *     parameters:
@@ -106,22 +102,18 @@ router.get('/routes', (req, res) => {
  *         name: busId
  *         schema:
  *           type: string
- *           example: bs1
  *       - in: query
  *         name: busNumber
  *         schema:
  *           type: string
- *           example: ab1212
  *       - in: query
  *         name: operatorUsername
  *         schema:
  *           type: string
- *           example: mpabasara12
  *       - in: query
  *         name: routeId
  *         schema:
  *           type: string
- *           example: r001
  *     responses:
  *       200:
  *         description: List of matching buses
@@ -170,7 +162,7 @@ router.get('/buses', (req, res) => {
  * @swagger
  * /commuter/schedules:
  *   get:
- *     summary: View schedules
+ *     summary: View schedules with optional filters
  *     description: Fetch accepted schedules with optional filters by scheduleId, busId, routeNumber, day, distance.
  *     tags: [Commuter]
  *     parameters:
@@ -178,27 +170,22 @@ router.get('/buses', (req, res) => {
  *         name: scheduleId
  *         schema:
  *           type: string
- *           example: s001
  *       - in: query
  *         name: busId
  *         schema:
  *           type: string
- *           example: bs1
  *       - in: query
  *         name: routeNumber
  *         schema:
  *           type: string
- *           example: r001
  *       - in: query
  *         name: day
  *         schema:
  *           type: string
- *           example: tue
  *       - in: query
  *         name: distance
  *         schema:
  *           type: string
- *           example: 10km
  *     responses:
  *       200:
  *         description: List of matching schedules

@@ -6,7 +6,7 @@ const routeSchema = new mongoose.Schema({
     routeName: String,
     startLocation: String,
     endLocation: String,
-    distance: Number,
+    distance: String,
     status: Boolean
     // other fields if needed...
 });
