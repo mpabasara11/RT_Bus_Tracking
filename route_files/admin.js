@@ -38,7 +38,7 @@ router.use((req, res, next) => {
 
 /**
  * @swagger
- * /users:
+ * /admin/users:
  *   post:
  *     summary: Create a new user
  *     description: Creates a new user with the provided details. Validates input, hashes the password, and saves the user to the database.
@@ -92,6 +92,15 @@ router.use((req, res, next) => {
  *           application/json:
  *             example:
  *               message: User created
+ *               newUser:
+ *                userName: johndoe123
+ *                userRole: admin
+ *                firstName: John
+ *                lastName: Doe
+ *                email: johndoe@example.com
+ *                nic: 123456789V
+ *                status: true
+ * 
  *       400:
  *         description: Validation error (invalid input fields)
  *       409:
@@ -159,7 +168,7 @@ router.post('/users', (req, res) => {
             newUser.save()
                 .then(() => {
                     console.log('User created');
-                    res.status(201).json({ message: 'User created' });
+                    res.status(201).json({ message: 'User created', newUser });
                 })
                 .catch(error => {
                     console.error('Error while saving the user:', error);
@@ -175,7 +184,7 @@ router.post('/users', (req, res) => {
 
 /**
  * @swagger
- * /users/{userName}:
+ * /admin/users/{userName}:
  *   put:
  *     summary: Update a user's details
  *     description: Updates the details of a user identified by their userName. Validates input, hashes the password, and saves changes to the database.
@@ -322,7 +331,7 @@ router.put('/users/:userName', (req, res) => {
 
 /**
  * @swagger
- * /users/{userName}/status:
+ * /admin/users/{userName}/status:
  *   patch:
  *     summary: Update a user's status
  *     description: Updates only the status (active/inactive) of a user identified by their userName.
@@ -353,9 +362,6 @@ router.put('/users/:userName', (req, res) => {
  *           application/json:
  *             example:
  *               message: User status updated successfully
- *               user:
- *                 userName: johndoe
- *                 status: true
  *       400:
  *         description: Validation error (invalid input)
  *       404:
@@ -394,7 +400,7 @@ router.patch('/users/:userName/status', (req, res) => {
             user.save()
                 .then(() => {
                     console.log('User status updated successfully');
-                    res.status(200).json({ message: 'User status updated successfully', user });
+                    res.status(200).json({ message: 'User status updated successfully' });
                 })
                 .catch(err => {
                     console.error('Error while saving the user:', err);
@@ -409,7 +415,7 @@ router.patch('/users/:userName/status', (req, res) => {
 
 /**
  * @swagger
- * /users/{userName}:
+ * /admin/users/{userName}:
  *   delete:
  *     summary: Delete a user
  *     description: Deletes a user identified by their userName from the database.
@@ -469,7 +475,7 @@ router.delete('/users/:userName', (req, res) => {
 
 /**
  * @swagger
- * /users:
+ * /admin/users:
  *   get:
  *     summary: Get all users with optional filters
  *     description: Retrieves a list of users. You can filter users by userName, userRole, firstName, lastName, nic, or status.
@@ -567,7 +573,7 @@ router.get('/users', (req, res) => {
 
 /**
  * @swagger
- * /routes:
+ * /admin/routes:
  *   post:
  *     summary: Create a new bus route
  *     description: Creates a new bus route with the provided details. Validates input and saves the route to the database.
@@ -591,13 +597,13 @@ router.get('/users', (req, res) => {
  *                 example: R001
  *               routeName:
  *                 type: string
- *                 example: City Center to Airport
+ *                 example: colombo  to gampaha
  *               startLocation:
  *                 type: string
- *                 example: City Center
+ *                 example: colombo
  *               endLocation:
  *                 type: string
- *                 example: Airport
+ *                 example: gampaha
  *               distance:
  *                 type: number
  *                 example: 12.5
@@ -611,6 +617,13 @@ router.get('/users', (req, res) => {
  *           application/json:
  *             example:
  *               message: Route created
+ *               newRoute:
+ *                routeNumber: R001
+ *                routeName: colombo to gampaha
+ *                startLocation: colombo
+ *                endLocation: gampaha
+ *                distance: 12.5
+ *                status: true
  *       400:
  *         description: Validation error (invalid input)
  *       409:
@@ -665,7 +678,7 @@ router.post('/routes', (req, res) => {
             newRoute.save()
                 .then(() => {
                     console.log('Route created');
-                    res.status(201).json({ message: 'Route created' });
+                    res.status(201).json({ message: 'Route created', newRoute });
                 })
                 .catch(error => {
                     console.error('Error while saving the route:', error);
@@ -676,7 +689,7 @@ router.post('/routes', (req, res) => {
 
 /**
  * @swagger
- * /routes/{routeNumber}:
+ * /admin/routes/{routeNumber}:
  *   put:
  *     summary: Update a bus route's details
  *     description: Updates the details of a bus route identified by its routeNumber.
@@ -703,13 +716,13 @@ router.post('/routes', (req, res) => {
  *             properties:
  *               routeName:
  *                 type: string
- *                 example: City Center to Airport
+ *                 example: gampaha to colombo
  *               startLocation:
  *                 type: string
- *                 example: City Center
+ *                 example: colombo
  *               endLocation:
  *                 type: string
- *                 example: Airport
+ *                 example: gampaha
  *               distance:
  *                 type: number
  *                 example: 12.5
@@ -785,7 +798,7 @@ router.put('/routes/:routeNumber', (req, res) => {
 
 /**
  * @swagger
- * /routes/{routeNumber}/status:
+ * /admin/routes/{routeNumber}/status:
  *   patch:
  *     summary: Update a bus route's status
  *     description: Updates only the status (active/inactive) of a bus route identified by its routeNumber.
@@ -816,9 +829,6 @@ router.put('/routes/:routeNumber', (req, res) => {
  *           application/json:
  *             example:
  *               message: Route status updated successfully
- *               route:
- *                 routeNumber: R001
- *                 status: true
  *       400:
  *         description: Validation error (invalid input)
  *       404:
@@ -858,7 +868,7 @@ router.patch('/routes/:routeNumber/status', (req, res) => {
             route.save()
                 .then(() => {
                     console.log('Route status updated successfully');
-                    res.status(200).json({ message: 'Route status updated successfully', route });
+                    res.status(200).json({ message: 'Route status updated successfully' });
                 })
                 .catch(err => {
                     console.error('Error while updating the route status:', err);
@@ -874,7 +884,7 @@ router.patch('/routes/:routeNumber/status', (req, res) => {
 
 /**
  * @swagger
- * /routes/{routeNumber}:
+ * /admin/routes/{routeNumber}:
  *   delete:
  *     summary: Delete a bus route
  *     description: Deletes a bus route identified by its routeNumber. Cannot delete if any bus is assigned to this route.
@@ -959,7 +969,7 @@ router.delete('/routes/:routeNumber', (req, res) => {
 
 /**
  * @swagger
- * /routes:
+ * /admin/routes:
  *   get:
  *     summary: Get all bus routes with optional filters
  *     description: Retrieves a list of bus routes. You can filter routes by routeNumber, routeName, startLocation, endLocation, or status.
@@ -997,16 +1007,16 @@ router.delete('/routes/:routeNumber', (req, res) => {
  *           application/json:
  *             example:
  *               - routeNumber: R001
- *                 routeName: City Center to Airport
- *                 startLocation: City Center
- *                 endLocation: Airport
+ *                 routeName: colombo to gampaha
+ *                 startLocation: colombo
+ *                 endLocation: gampaha
  *                 distance: 12.5
  *                 status: true
  *               - routeNumber: R002
- *                 routeName: Downtown to Station
- *                 startLocation: Downtown
- *                 endLocation: Station
- *                 distance: 8.2
+ *                 routeName: gampaha to colombo
+ *                 startLocation: gampaha
+ *                 endLocation: colombo
+ *                 distance: 12.5
  *                 status: false
  *       404:
  *         description: No routes found
@@ -1052,7 +1062,7 @@ router.get('/routes', (req, res) => {
 
 /**
  * @swagger
- * /buses:
+ * /admin/buses:
  *   post:
  *     summary: Create a new bus
  *     description: Creates a new bus with a unique busId and busNumber, assigns an operator and route, and sets the workflow status.
@@ -1093,12 +1103,16 @@ router.get('/routes', (req, res) => {
  *           application/json:
  *             example:
  *               message: Bus created successfully
- *               bus:
- *                 busId: B001
- *                 busNumber: ABC-1234
- *                 operatorUsername: mpabasara11
- *                 routeId: R001
- *                 workflowStatus: pending
+ *               newBus:
+ *                busId: B001
+ *                busNumber: ABC-1234
+ *                operatorUsername: mpabasara12
+ *                routeId: R001
+ *                workflowStatus: pending
+ *                latitude: 0
+ *                longitude: 0
+ *                lastUpdated: 2024-10-10T10:00:00.000Z
+ * 
  *       400:
  *         description: Validation error or operator is admin
  *       404:
@@ -1184,7 +1198,7 @@ router.post('/buses', (req, res) => {
                                     newBus.save()
                                         .then(() => {
                                             console.log('Bus created successfully');
-                                            res.status(201).json({ message: 'Bus created successfully', bus: newBus });
+                                            res.status(201).json({ message: 'Bus created successfully', newBus });
                                         })
                                         .catch(err => {
                                             console.error('Error while saving the bus:', err);
@@ -1206,7 +1220,7 @@ router.post('/buses', (req, res) => {
 
 /**
  * @swagger
- * /buses/{busId}:
+ * /admin/buses/{busId}:
  *   put:
  *     summary: Update a bus
  *     description: Updates the details of a bus identified by its busId.
@@ -1250,12 +1264,6 @@ router.post('/buses', (req, res) => {
  *           application/json:
  *             example:
  *               message: Bus updated successfully
- *               bus:
- *                 busId: B001
- *                 busNumber: ABC-1234
- *                 operatorUsername: mpabasara11
- *                 routeId: R001
- *                 workflowStatus: active
  *       400:
  *         description: Validation error or operator is admin
  *       404:
@@ -1336,7 +1344,7 @@ router.put('/buses/:busId', (req, res) => {
                                     bus.save()
                                         .then(() => {
                                             console.log('Bus updated successfully');
-                                            res.status(200).json({ message: 'Bus updated successfully', bus });
+                                            res.status(200).json({ message: 'Bus updated successfully' });
                                         })
                                         .catch(err => {
                                             console.error('Error while saving the bus:', err);
@@ -1358,7 +1366,7 @@ router.put('/buses/:busId', (req, res) => {
 
 /**
  * @swagger
- * /buses/{busId}/workflowStatus:
+ * /admin/buses/{busId}/workflowStatus:
  *   patch:
  *     summary: Update a bus's workflow status
  *     description: Updates only the workflowStatus of a bus identified by its busId.
@@ -1390,9 +1398,6 @@ router.put('/buses/:busId', (req, res) => {
  *           application/json:
  *             example:
  *               message: Workflow status updated successfully
- *               bus:
- *                 busId: B001
- *                 workflowStatus: active
  *       400:
  *         description: Validation error (invalid workflowStatus)
  *       404:
@@ -1432,7 +1437,7 @@ router.patch('/buses/:busId/workflowStatus', (req, res) => {
             bus.save()
                 .then(() => {
                     console.log('Workflow status updated successfully');
-                    res.status(200).json({ message: 'Workflow status updated successfully', bus });
+                    res.status(200).json({ message: 'Workflow status updated successfully' });
                 })
                 .catch(err => {
                     console.error('Error while saving the bus:', err);
@@ -1447,7 +1452,7 @@ router.patch('/buses/:busId/workflowStatus', (req, res) => {
 
 /**
  * @swagger
- * /buses/{busId}:
+ * /admin/buses/{busId}:
  *   delete:
  *     summary: Delete a bus
  *     description: Deletes a bus identified by its busId. Also deletes all schedules associated with the bus.
@@ -1526,7 +1531,7 @@ router.delete('/buses/:busId', (req, res) => {
 
 /**
  * @swagger
- * /buses:
+ * /admin/buses:
  *   get:
  *     summary: Get all buses with optional filters
  *     description: Retrieves a list of buses. You can filter buses by busId, busNumber, operatorUsername, routeId, or workflowStatus.
@@ -1620,7 +1625,7 @@ router.get('/buses', (req, res) => {
 
 /**
  * @swagger
- * /schedules:
+ * /admin/schedules:
  *   post:
  *     summary: Create a new schedule
  *     description: Creates a new schedule for a bus on a specific route and day.
@@ -1660,13 +1665,14 @@ router.get('/buses', (req, res) => {
  *         content:
  *           application/json:
  *             example:
- *               message: Schedule created successfully
- *               schedule:
- *                 scheduleId: S001
- *                 busId: B001
- *                 routeNumber: R001
- *                 day: mon
- *                 distance: "15 km"
+ *               message: Schedule created successfully      
+ *               newSchedule:
+ *                scheduleId: S001
+ *                busId: B001
+ *                routeNumber: R001
+ *                day: mon
+ *                distance: 15 km
+ *                confirmationStatus: pending   
  *       400:
  *         description: Validation error
  *       404:
@@ -1734,7 +1740,7 @@ router.post('/schedules', (req, res) => {
                             newSchedule.save()
                                 .then(() => {
                                     console.log('Schedule created successfully');
-                                    res.status(201).json({ message: 'Schedule created successfully', schedule: newSchedule });
+                                    res.status(201).json({ message: 'Schedule created successfully', newSchedule });
                                 })
                                 .catch(err => {
                                     console.error('Error while saving the schedule:', err);
@@ -1761,7 +1767,7 @@ router.post('/schedules', (req, res) => {
 
 /**
  * @swagger
- * /schedules/{scheduleId}:
+ * /admin/schedules/{scheduleId}:
  *   put:
  *     summary: Update a schedule
  *     description: Updates an existing schedule identified by its scheduleId.
@@ -1805,12 +1811,6 @@ router.post('/schedules', (req, res) => {
  *           application/json:
  *             example:
  *               message: Schedule updated successfully
- *               schedule:
- *                 scheduleId: S001
- *                 busId: B001
- *                 routeNumber: R001
- *                 day: mon
- *                 distance: "15 km"
  *       400:
  *         description: Validation error
  *       404:
@@ -1873,7 +1873,7 @@ router.put('/schedules/:scheduleId', (req, res) => {
                             schedule.save()
                                 .then(() => {
                                     console.log('Schedule updated successfully');
-                                    res.status(200).json({ message: 'Schedule updated successfully', schedule });
+                                    res.status(200).json({ message: 'Schedule updated successfully' });
                                 })
                                 .catch(err => {
                                     console.error('Error while saving the schedule:', err);
@@ -1898,7 +1898,7 @@ router.put('/schedules/:scheduleId', (req, res) => {
 
 /**
  * @swagger
- * /schedules/{scheduleId}:
+ * /admin/schedules/{scheduleId}:
  *   delete:
  *     summary: Delete a schedule
  *     description: Deletes a schedule identified by its scheduleId.
@@ -1957,7 +1957,7 @@ router.delete('/schedules/:scheduleId', (req, res) => {
 
 /**
  * @swagger
- * /schedules:
+ * /admin/schedules:
  *   get:
  *     summary: Get schedules
  *     description: Retrieve all schedules or filter them by scheduleId, busId, routeNumber, day, distance, or confirmationStatus.

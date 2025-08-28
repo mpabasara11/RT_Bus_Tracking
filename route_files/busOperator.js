@@ -73,10 +73,14 @@ router.use((req, res, next) => {
  *             example:
  *               message: Bus created successfully
  *               bus:
- *                 busId: B001
- *                 busNumber: AB-1234
- *                 operatorUsername: mpabasara11
- *                 routeId: R001
+ *                busId: B001
+ *                busNumber: AB-1234
+ *                operatorUsername: mpabasara11
+ *                routeId: R001
+ *                workflowStatus: pending
+ *                latitude: 0
+ *                longitude: 0
+ *                locationLastUpdate: 2025-08-28T06:15:30.000Z
  *       404:
  *         description: Route ID not found
  *         content:
@@ -149,7 +153,7 @@ router.post('/buses', (req, res) => {
                             newBus.save()
                                 .then(() => {
                                     console.log('Bus created successfully');
-                                    res.status(201).json({ message: 'Bus created successfully', bus: newBus });
+                                    res.status(201).json({ message: 'Bus created successfully', newBus });
                                 })
                                 .catch(err => {
                                     console.error('Error while saving the bus:', err);
@@ -201,12 +205,6 @@ router.post('/buses', (req, res) => {
  *           application/json:
  *             example:
  *               message: Workflow status updated successfully
- *               bus:
- *                 busId: B001
- *                 busNumber: AB-1234
- *                 operatorUsername: mpabasara11
- *                 routeId: R001
- *                 workflowStatus: inactive
  *       400:
  *         description: Invalid request body
  *         content:
@@ -271,7 +269,7 @@ router.patch('/buses/:busId/workflowStatus', (req, res) => {
             bus.save()
                 .then(() => {
                     console.log('Workflow status updated successfully');
-                    res.status(200).json({ message: 'Workflow status updated successfully', bus });
+                    res.status(200).json({ message: 'Workflow status updated successfully' });
                 })
                 .catch(err => {
                     console.error('Error while saving the bus:', err);
@@ -327,14 +325,6 @@ router.patch('/buses/:busId/workflowStatus', (req, res) => {
  *           application/json:
  *             example:
  *               message: Bus location updated successfully
- *               bus:
- *                 busId: B001
- *                 busNumber: AB-1234
- *                 operatorUsername: mpabasara11
- *                 routeId: R001
- *                 latitude: 6.9271
- *                 longitude: 79.8612
- *                 locationLastUpdate: "2025-08-28T06:15:30.000Z"
  *       400:
  *         description: Invalid request body
  *         content:
@@ -400,7 +390,7 @@ router.patch('/buses/:busId/location', (req, res) => {
             bus.save()
                 .then(() => {
                     console.log('Bus location updated successfully');
-                    res.status(200).json({ message: 'Bus location updated successfully', bus });
+                    res.status(200).json({ message: 'Bus location updated successfully' });
                 })
                 .catch(err => {
                     console.error('Error while saving the location:', err);
@@ -546,6 +536,9 @@ router.delete('/buses/:busId', (req, res) => {
  *                 operatorUsername: "operator1"
  *                 routeId: "R001"
  *                 workflowStatus: "active"
+ *                 latitude: 6.9271
+ *                 longitude: 79.8612
+ *                 locationLastUpdate: "2025-08-28T06:15:30.000Z"
  *       404:
  *         description: No buses found for the operator
  *         content:
@@ -709,13 +702,6 @@ router.get('/routes', (req, res) => {
  *           application/json:
  *             example:
  *               message: "schedule confirmationStatus updated successfully"
- *               schedule:
- *                 scheduleId: "S123"
- *                 busId: "B123"
- *                 routeNumber: "R001"
- *                 day: "mon"
- *                 distance: "15km"
- *                 confirmationStatus: "accepted"
  *       400:
  *         description: Invalid request body
  *         content:
@@ -781,7 +767,7 @@ router.patch('/schedules/:scheduleId/confirmationStatus', (req, res) => {
             schedule.save()
                 .then(() => {
                     console.log('schedule confirmationStatus updated successfully');
-                    res.status(200).json({ message: 'schedule confirmationStatus updated successfully', schedule });
+                    res.status(200).json({ message: 'schedule confirmationStatus updated successfully' });
                 })
                 .catch(err => {
                     console.error('Error while updating the schedule confirmationStatus:', err);

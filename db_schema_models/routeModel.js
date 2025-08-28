@@ -4,16 +4,12 @@ const mongoose = require('mongoose');
 const routeSchema = new mongoose.Schema({
     routeNumber: String,
     routeName: String,
-    day: String,
-    departureTime: String,
-    arrivalTime: String 
+    startLocation: String,
+    endLocation: String,
+    distance: Number,
+    status: Boolean
     // other fields if needed...
-    });
-        
-// Create a User model from the schema
-module.exports=mongoose.model('Route', routeSchema);
+});
 
-
-
-
-   
+// Create a Route model from the schema
+module.exports = mongoose.model('Route', routeSchema);
