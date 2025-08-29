@@ -33,9 +33,33 @@ app.use((req, res, next) => {
     next();
 });
 
+/////////////////////////////////////////
+
+// Serve raw OpenAPI spec as JSON
+app.get('/swagger.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+});
+
+app.use(
+    '/api-docs',
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec, {
+        swaggerOptions: {
+            url: '/swagger.json', // tell Swagger UI to fetch the JSON spec
+        },
+    })
+);
+
+
+
+
+
+//////////////////////////////////////
+
 
 // Swagger UI Route
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+//app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 
