@@ -10,21 +10,92 @@ const bcrypt = require('bcrypt');
 const Joi = require('joi');
 
 //middleware for checking request object contain a userRole as busOperator
-router.use((req,res,next) => {
-    if(req.userRole === 'busOperator')
-    {
+router.use((req, res, next) => {
+    if (req.userRole === 'busOperator') {
         next();
     }
-    else
-    {
-        res.status(403).json({error:'Forbidden'});
-        
+    else {
+        res.status(403).json({ error: 'Forbidden' });
+
     }
 }
 )
 
 
+
+
+/**
+ * @swagger
+ * tags:
+ *   name: Bus Operator
+ *   description: Admin APIs to manage users, routes, buses, and schedules
+ */
+
+
+
+
 ////////////////////////////////bus management////////////////////////////////////////////
+
+/**
+ * @swagger
+ * /busOperator/buses:
+ *   post:
+ *     summary: Create a new bus
+ *     description: Creates a new bus and assigns the currently logged-in user as the operator.
+ *     tags: [Bus Operator]
+ *     security:
+ *       - bearerAuth: []  # assuming JWT auth or similar
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - busId
+ *               - busNumber
+ *               - routeId
+ *             properties:
+ *               busId:
+ *                 type: string
+ *                 example: B001
+ *               busNumber:
+ *                 type: string
+ *                 example: AB-1234
+ *               routeId:
+ *                 type: string
+ *                 example: R001
+ *     responses:
+ *       201:
+ *         description: Bus created successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Bus created successfully
+ *               bus:
+ *                busId: B001
+ *                busNumber: AB-1234
+ *                operatorUsername: mpabasara11
+ *                routeId: R001
+ *                workflowStatus: pending
+ *                latitude: 0
+ *                longitude: 0
+ *                locationLastUpdate: 2025-08-28T06:15:30.000Z
+ *       404:
+ *         description: Route ID not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Route ID not found
+ *       409:
+ *         description: Bus ID or bus number already exists
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Bus ID already exists
+ *       500:
+ *         description: Internal server error
+ */
 
 // create bus
 router.post('/buses', (req, res) => {
@@ -36,7 +107,7 @@ router.post('/buses', (req, res) => {
         busId: Joi.string().required(),
         busNumber: Joi.string().required(),
         routeId: Joi.string().required(),
-     
+
     });
 
     // Validate request body
@@ -75,14 +146,14 @@ router.post('/buses', (req, res) => {
                                 busNumber,
                                 operatorUsername: loggedInUsername, // assign current logged-in user
                                 routeId
-                                
+
                             });
 
                             // Save to DB
                             newBus.save()
                                 .then(() => {
                                     console.log('Bus created successfully');
-                                    res.status(201).json({ message: 'Bus created successfully', bus: newBus });
+                                    res.status(201).json({ message: 'Bus created successfully', newBus });
                                 })
                                 .catch(err => {
                                     console.error('Error while saving the bus:', err);
@@ -97,14 +168,73 @@ router.post('/buses', (req, res) => {
         });
 });
 
+
+/**
+ * @swagger
+ * /busOperator/buses/{busId}/workflowStatus:
+ *   patch:
+ *     summary: Set a bus workflowStatus to inactive
+ *     description: Updates the workflowStatus of a bus to inactive. Only the bus operator can perform this action. Pending buses cannot be updated.
+ *     tags: [Bus Operator]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: busId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the bus to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - workflowStatus
+ *             properties:
+ *               workflowStatus:
+ *                 type: string
+ *                 enum: [inactive]
+ *                 example: inactive
+ *     responses:
+ *       200:
+ *         description: Workflow status updated successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Workflow status updated successfully
+ *       400:
+ *         description: Invalid request body
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Invalid workflowStatus value"
+ *       403:
+ *         description: Not authorized to update this bus
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Not authorized to update this bus"
+ *       404:
+ *         description: Bus not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Bus not found"
+ *       500:
+ *         description: Internal server error
+ */
+
 // Update only workflowStatus of a bus by busId (inactive the bus)
 router.patch('/buses/:busId/workflowStatus', (req, res) => {
     const busIdParam = req.params.busId;
-    const loggedInUsername = req.userName; 
+    const loggedInUsername = req.userName;
 
     // Joi schema for validation 
     const busSchema = Joi.object({
-        workflowStatus: Joi.string().valid('inactive' ).required()
+        workflowStatus: Joi.string().valid('inactive').required()
     });
 
     // Validate request body
@@ -127,7 +257,7 @@ router.patch('/buses/:busId/workflowStatus', (req, res) => {
                 return res.status(403).json({ error: 'Not authorized to update this bus' });
             }
 
-            if(bus.workflowStatus== "pending"){
+            if (bus.workflowStatus == "pending") {
                 console.log('Not authorized to update pending buses');
                 return res.status(403).json({ error: 'Not authorized to update pending buses' });
             }
@@ -139,7 +269,7 @@ router.patch('/buses/:busId/workflowStatus', (req, res) => {
             bus.save()
                 .then(() => {
                     console.log('Workflow status updated successfully');
-                    res.status(200).json({ message: 'Workflow status updated successfully', bus });
+                    res.status(200).json({ message: 'Workflow status updated successfully' });
                 })
                 .catch(err => {
                     console.error('Error while saving the bus:', err);
@@ -152,18 +282,82 @@ router.patch('/buses/:busId/workflowStatus', (req, res) => {
         });
 });
 
+/**
+ * @swagger
+ * /busOperator/buses/{busId}/location:
+ *   patch:
+ *     summary: Update bus location
+ *     description: Updates the latitude and longitude of a bus. Only the bus operator can update the location. The locationLastUpdate timestamp is automatically set to the current time.
+ *     tags: [Bus Operator]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: busId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the bus to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - latitude
+ *               - longitude
+ *             properties:
+ *               latitude:
+ *                 type: number
+ *                 minimum: -90
+ *                 maximum: 90
+ *                 example: 6.9271
+ *               longitude:
+ *                 type: number
+ *                 minimum: -180
+ *                 maximum: 180
+ *                 example: 79.8612
+ *     responses:
+ *       200:
+ *         description: Bus location updated successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Bus location updated successfully
+ *       400:
+ *         description: Invalid request body
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Latitude or longitude is missing or invalid"
+ *       403:
+ *         description: Not authorized to update this bus
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Not authorized to update this bus"
+ *       404:
+ *         description: Bus not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Bus not found"
+ *       500:
+ *         description: Internal server error
+ */
 
 //update bus location by busId
 router.patch('/buses/:busId/location', (req, res) => {
     const busIdParam = req.params.busId;
-    const loggedInUsername = req.userName; 
-   
+    const loggedInUsername = req.userName;
+
 
     // Joi schema for validation 
     const busSchema = Joi.object({
-       
+
         latitude: Joi.number().min(-90).max(90).required(),
-        longitude :Joi.number().min(-180).max(180).required()
+        longitude: Joi.number().min(-180).max(180).required()
 
     });
 
@@ -171,7 +365,7 @@ router.patch('/buses/:busId/location', (req, res) => {
     const { error, value } = busSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details[0].message });
 
-    const { latitude , longitude } = value;
+    const { latitude, longitude } = value;
 
     // Check if bus exists
     Bus.findOne({ busId: busIdParam })
@@ -196,7 +390,7 @@ router.patch('/buses/:busId/location', (req, res) => {
             bus.save()
                 .then(() => {
                     console.log('Bus location updated successfully');
-                    res.status(200).json({ message: 'Bus location updated successfully', bus });
+                    res.status(200).json({ message: 'Bus location updated successfully' });
                 })
                 .catch(err => {
                     console.error('Error while saving the location:', err);
@@ -209,11 +403,53 @@ router.patch('/buses/:busId/location', (req, res) => {
         });
 });
 
+/**
+ * @swagger
+ * /busOperator/buses/{busId}:
+ *   delete:
+ *     summary: Delete a bus
+ *     description: Deletes a bus and all its associated schedules. Only the operator who owns the bus can delete it.
+ *     tags: [Bus Operator]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: busId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the bus to delete
+ *     responses:
+ *       200:
+ *         description: Bus and associated schedules deleted successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Bus and associated schedules deleted successfully"
+ *       403:
+ *         description: Not authorized to delete this bus
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Not authorized to delete this bus"
+ *       404:
+ *         description: Bus not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Bus not found"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Internal server error"
+ */
 
 //delete bus with busId //only owned busses can be deleted
 router.delete('/buses/:busId', (req, res) => {
     const busId = req.params.busId;
-    const loggedInUsername = req.userName; 
+    const loggedInUsername = req.userName;
 
     Bus.findOne({ busId: busId })
         .then(bus => {
@@ -231,18 +467,18 @@ router.delete('/buses/:busId', (req, res) => {
             bus.deleteOne()
                 .then(() => {
                     console.log('Bus deleted successfully');
-                   // res.status(200).json({ message: 'Bus deleted successfully' });
+                    // res.status(200).json({ message: 'Bus deleted successfully' });
 
-   // After deleting the bus, delete schedules associated with it
-   Schedule.deleteMany({ busId: busId })
-   .then(() => {
-       console.log('Associated schedules deleted successfully');
-       res.status(200).json({ message: 'Bus and associated schedules deleted successfully' });
-   })
-   .catch(error => {
-       console.error('Bus deleted but failed to delete schedules:', error);
-       res.status(200).json({ message: 'Bus deleted but failed to delete schedules' });
-   });
+                    // After deleting the bus, delete schedules associated with it
+                    Schedule.deleteMany({ busId: busId })
+                        .then(() => {
+                            console.log('Associated schedules deleted successfully');
+                            res.status(200).json({ message: 'Bus and associated schedules deleted successfully' });
+                        })
+                        .catch(error => {
+                            console.error('Bus deleted but failed to delete schedules:', error);
+                            res.status(200).json({ message: 'Bus deleted but failed to delete schedules' });
+                        });
 
 
                 })
@@ -257,10 +493,70 @@ router.delete('/buses/:busId', (req, res) => {
         });
 });
 
+
+/**
+ * @swagger
+ * /busOperator/buses:
+ *   get:
+ *     summary: Get operator-owned buses with optional filters
+ *     description: Retrieve all buses owned by the logged-in operator. Supports filtering by busId, busNumber, routeId, and workflowStatus.
+ *     tags: [Bus Operator]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: busId
+ *         schema:
+ *           type: string
+ *         description: Filter by bus ID
+ *       - in: query
+ *         name: busNumber
+ *         schema:
+ *           type: string
+ *         description: Filter by bus number
+ *       - in: query
+ *         name: routeId
+ *         schema:
+ *           type: string
+ *         description: Filter by route ID
+ *       - in: query
+ *         name: workflowStatus
+ *         schema:
+ *           type: string
+ *           enum: [pending, active, inactive]
+ *         description: Filter by workflow status
+ *     responses:
+ *       200:
+ *         description: List of buses owned by the operator
+ *         content:
+ *           application/json:
+ *             example:
+ *               - busId: "BUS001"
+ *                 busNumber: "ABC-123"
+ *                 operatorUsername: "operator1"
+ *                 routeId: "R001"
+ *                 workflowStatus: "active"
+ *                 latitude: 6.9271
+ *                 longitude: 79.8612
+ *                 locationLastUpdate: "2025-08-28T06:15:30.000Z"
+ *       404:
+ *         description: No buses found for the operator
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "No buses found"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Internal server error"
+ */
+
 // Get buses | filter by busId busNumber, routeId, workflowStatus
 router.get('/buses', (req, res) => {
     const { busId, busNumber, routeId, workflowStatus } = req.query;
-    const loggedInUsername = req.userName; 
+    const loggedInUsername = req.userName;
 
     let filter = { operatorUsername: loggedInUsername }; // Force operator to see only their buses
 
@@ -284,10 +580,68 @@ router.get('/buses', (req, res) => {
 
 
 //////////////////////////////route management///////////////////////////////////////////
+/**
+ * @swagger
+ * /busOperator/routes:
+ *   get:
+ *     summary: Get bus routes with optional filters
+ *     description: Retrieve all bus routes with optional filters.
+ *     tags: [Bus Operator]
+ *     parameters:
+ *       - in: query
+ *         name: routeNumber
+ *         schema:
+ *           type: string
+ *         description: Filter by route number
+ *       - in: query
+ *         name: routeName
+ *         schema:
+ *           type: string
+ *         description: Filter by route name
+ *       - in: query
+ *         name: startLocation
+ *         schema:
+ *           type: string
+ *         description: Filter by start location
+ *       - in: query
+ *         name: endLocation
+ *         schema:
+ *           type: string
+ *         description: Filter by end location
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: boolean
+ *         description: Filter by route status (true for active, false for inactive)
+ *     responses:
+ *       200:
+ *         description: List of routes matching the filters
+ *         content:
+ *           application/json:
+ *             example:
+ *               - routeNumber: "R001"
+ *                 routeName: "Main Street Express"
+ *                 startLocation: "City Center"
+ *                 endLocation: "Airport"
+ *                 distance: 15
+ *                 status: true
+ *       404:
+ *         description: No routes found
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "No routes found"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Internal server error"
+ */
 
- //get bus routes | filter by routeName routeNumber startLocation endLocation status
- router.get('/routes', (req, res) => {
-    const { routeNumber, routeName , startLocation , endLocation , status } = req.query; // read query parameters
+//get bus routes | filter by routeName routeNumber startLocation endLocation status
+router.get('/routes', (req, res) => {
+    const { routeNumber, routeName, startLocation, endLocation, status } = req.query; // read query parameters
 
     let filter = {};
 
@@ -313,6 +667,66 @@ router.get('/buses', (req, res) => {
 
 //////////////////////////////schedule management///////////////////////////////////////////
 
+/**
+ * @swagger
+ * /busOperator/schedules/{scheduleId}/confirmationStatus:
+ *   patch:
+ *     summary: Update the confirmation status of a schedule
+ *     description: Accept or reject a schedule when it is pending. Once accepted or rejected, it cannot be updated.
+ *     tags: [Bus Operator]
+ *     parameters:
+ *       - in: path
+ *         name: scheduleId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the schedule to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               confirmationStatus:
+ *                 type: string
+ *                 enum: [accepted, rejected]
+ *             required:
+ *               - confirmationStatus
+ *           example:
+ *             confirmationStatus: "accepted"
+ *     responses:
+ *       200:
+ *         description: Confirmation status updated successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "schedule confirmationStatus updated successfully"
+ *       400:
+ *         description: Invalid request body
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "confirmationStatus must be one of [accepted, rejected]"
+ *       403:
+ *         description: Not authorized to update the schedule
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Not authorized to update already accepted schedules"
+ *       404:
+ *         description: Schedule not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Schedule not found"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Internal server error"
+ */
 
 //update schedule confirmationStatus by scheduleId   //accept or reject when it is pending
 router.patch('/schedules/:scheduleId/confirmationStatus', (req, res) => {
@@ -337,13 +751,11 @@ router.patch('/schedules/:scheduleId/confirmationStatus', (req, res) => {
                 return res.status(404).json({ error: 'Schedule not found' });
             }
 
-            if(schedule.confirmationStatus=="accepted")
-            {
+            if (schedule.confirmationStatus == "accepted") {
                 console.log('Not authorized to update already accepted schedules');
                 return res.status(403).json({ error: 'Not authorized to update already accepted schedules' });
             }
-            if(schedule.confirmationStatus=="rejected")
-            {
+            if (schedule.confirmationStatus == "rejected") {
                 console.log('Not authorized to update already rejected schedules');
                 return res.status(403).json({ error: 'Not authorized to update already rejected schedules' });
             }
@@ -355,7 +767,7 @@ router.patch('/schedules/:scheduleId/confirmationStatus', (req, res) => {
             schedule.save()
                 .then(() => {
                     console.log('schedule confirmationStatus updated successfully');
-                    res.status(200).json({ message: 'schedule confirmationStatus updated successfully', schedule });
+                    res.status(200).json({ message: 'schedule confirmationStatus updated successfully' });
                 })
                 .catch(err => {
                     console.error('Error while updating the schedule confirmationStatus:', err);
@@ -368,9 +780,76 @@ router.patch('/schedules/:scheduleId/confirmationStatus', (req, res) => {
         });
 });
 
- // Get schedules | filter by scheduleId busId, routeNumber, day, distance , confirmationStatus
+
+/**
+ * @swagger
+ * /busOperator/schedules:
+ *   get:
+ *     summary: Retrieve schedules with optional filters
+ *     description: Get a list of schedules filtered by scheduleId, busId, routeNumber, day, distance, or confirmationStatus.
+ *     tags: [Bus Operator]
+ *     parameters:
+ *       - in: query
+ *         name: scheduleId
+ *         schema:
+ *           type: string
+ *         description: Filter by schedule ID
+ *       - in: query
+ *         name: busId
+ *         schema:
+ *           type: string
+ *         description: Filter by bus ID
+ *       - in: query
+ *         name: routeNumber
+ *         schema:
+ *           type: string
+ *         description: Filter by route number
+ *       - in: query
+ *         name: day
+ *         schema:
+ *           type: string
+ *           enum: [sun, mon, tue, wed, thu, fri, sat]
+ *         description: Filter by day of the week
+ *       - in: query
+ *         name: distance
+ *         schema:
+ *           type: string
+ *         description: Filter by distance
+ *       - in: query
+ *         name: confirmationStatus
+ *         schema:
+ *           type: string
+ *           enum: [pending, accepted, rejected]
+ *         description: Filter by schedule confirmation status
+ *     responses:
+ *       200:
+ *         description: List of schedules found
+ *         content:
+ *           application/json:
+ *             example:
+ *               - scheduleId: "S123"
+ *                 busId: "B123"
+ *                 routeNumber: "R001"
+ *                 day: "mon"
+ *                 distance: "15km"
+ *                 confirmationStatus: "pending"
+ *       404:
+ *         description: No schedules found
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "No schedule found"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Internal server error"
+ */
+
+// Get schedules | filter by scheduleId busId, routeNumber, day, distance , confirmationStatus
 router.get('/schedules', (req, res) => {
-    const {scheduleId , busId, routeNumber, day, distance , confirmationStatus } = req.query;
+    const { scheduleId, busId, routeNumber, day, distance, confirmationStatus } = req.query;
 
     let filter = {};
 
