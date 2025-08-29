@@ -35,21 +35,16 @@ app.use((req, res, next) => {
 /////////////////////////////////////////
 
 const path = require('path');
-const swaggerUiDist = require('swagger-ui-dist');
 
-// Serve Swagger JSON spec
+// Serve raw OpenAPI spec
 app.get('/swagger.json', (req, res) => {
     res.json(swaggerSpec);
 });
 
-// Serve Swagger UI static files
-app.use('/api-docs', express.static(swaggerUiDist.getAbsoluteFSPath()));
-
 // Serve Swagger UI HTML
 app.get('/api-docs', (req, res) => {
-    res.sendFile(path.join(swaggerUiDist.getAbsoluteFSPath(), 'index.html'));
+    res.sendFile(path.join(__dirname, 'swagger.html'));
 });
-
 
 
 //////////////////////////////////////
