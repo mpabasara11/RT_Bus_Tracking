@@ -2,7 +2,6 @@ const serverless = require('serverless-http');
 const app = require('../app');
 const connectToDb = require('../db');
 
-// Ensure DB is connected before handling requests
 let isDbConnected = false;
 
 app.use(async (req, res, next) => {
@@ -18,4 +17,6 @@ app.use(async (req, res, next) => {
     next();
 });
 
-module.exports.handler = serverless(app);
+const handler = serverless(app);
+
+module.exports = handler; // ✅ export the function directly
