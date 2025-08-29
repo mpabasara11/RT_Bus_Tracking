@@ -1,6 +1,5 @@
 const express = require('express')
 const app = express()
-
 const cors = require('cors');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
@@ -35,23 +34,21 @@ app.use((req, res, next) => {
 
 /////////////////////////////////////////
 
-// Serve raw OpenAPI spec as JSON
+const path = require('path');
+const swaggerUiDist = require('swagger-ui-dist');
+
+// Serve Swagger JSON spec
 app.get('/swagger.json', (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.send(swaggerSpec);
+    res.json(swaggerSpec);
 });
 
-app.use(
-    '/api-docs',
-    swaggerUi.serve,
-    swaggerUi.setup(swaggerSpec, {
-        swaggerOptions: {
-            url: '/swagger.json', // tell Swagger UI to fetch the JSON spec
-        },
-    })
-);
+// Serve Swagger UI static files
+app.use('/api-docs', express.static(swaggerUiDist.getAbsoluteFSPath()));
 
-
+// Serve Swagger UI HTML
+app.get('/api-docs', (req, res) => {
+    res.sendFile(path.join(swaggerUiDist.getAbsoluteFSPath(), 'index.html'));
+});
 
 
 
