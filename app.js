@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const port = 8080
+
 const cors = require('cors');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
@@ -13,7 +13,7 @@ const { swaggerUi, swaggerSpec } = require('./swagger');
 require('dotenv').config();
 const jwtSecret = process.env.JWT_SECRET;
 const mongouri = process.env.MONGODB_URI;
-
+const port = process.env.PORT || 8080
 
 //importing routes
 const adminRoutes = require('./route_files/admin.js')
