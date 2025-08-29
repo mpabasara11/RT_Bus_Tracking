@@ -11,7 +11,7 @@ const options = {
         },
         servers: [
             {
-                url: 'http://localhost:8080', // your API base URL
+                url: 'https://rt-bus-tracking.vercel.app/', // your API base URL
             },
         ],
     },
