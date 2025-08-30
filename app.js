@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-const bcrypt = require('bcrypt');
+//const bcrypt = require('bcrypt');
 const { swaggerUi, swaggerSpec } = require('./swagger');
 
 
