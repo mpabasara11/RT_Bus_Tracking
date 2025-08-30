@@ -1,13 +1,14 @@
 const express = require('express')
 const app = express()
 const cors = require('cors');
+const helmet = require('helmet');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
 const { swaggerUi, swaggerSpec } = require('./swagger');
 
-//const jwtSecret = "secret"           //remember to change this
+
 
 require('dotenv').config();
 const jwtSecret = process.env.JWT_SECRET;
@@ -19,6 +20,9 @@ const adminRoutes = require('./route_files/admin.js')
 const authenticationRoutes = require('./route_files/auth.js')
 const busOperatorRoutes = require('./route_files/busOperator.js')
 const commuterRoutes = require('./route_files/commuter.js')
+
+
+app.use(helmet()); // Use Helmet to enhance API's security
 
 
 app.use(cors()); // Enable CORS for all routes
