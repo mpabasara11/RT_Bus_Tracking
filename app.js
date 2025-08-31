@@ -52,7 +52,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 
-//app.use(express.static(path.join(__dirname, 'swagger-assets')));/////////////////////////////experimental
+
 
 
 //  middleware for request logging
@@ -82,7 +82,7 @@ app.get('/api-docs', (req, res) => {
 
 
 // Swagger UI Route
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+//app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 
