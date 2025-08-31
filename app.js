@@ -24,11 +24,24 @@ const commuterRoutes = require('./route_files/commuter.js')
 
 //app.use(helmet()); // Use Helmet to enhance API's security  
 
-//app.use(
-//   helmet({
-//      contentSecurityPolicy: false
-//  })
-//);
+
+
+
+
+app.use(
+    helmet({
+        contentSecurityPolicy: {
+            directives: {
+                scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com"],
+                styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com"],
+                imgSrc: ["'self'", "data:", "https://unpkg.com"],
+            },
+        },
+    })
+);
+
+
+
 
 
 
