@@ -52,9 +52,6 @@ app.use(express.json());
 app.use(cookieParser());
 
 
-
-
-
 //  middleware for request logging
 app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
@@ -69,8 +66,6 @@ app.use((req, res, next) => {
 app.get('/swagger.json', (req, res) => {
     res.json(swaggerSpec);
 });
-
-
 
 // Serve Swagger UI HTML
 app.get('/api-docs', (req, res) => {
