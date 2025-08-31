@@ -22,12 +22,12 @@ const busOperatorRoutes = require('./route_files/busOperator.js')
 const commuterRoutes = require('./route_files/commuter.js')
 
 
+
+
+
 //app.use(helmet()); // Use Helmet to enhance API's security  
-
-
-
-
-
+// Configure Helmet with a custom Content Security Policy
+//still some browbsers may refuce to load resources from unpkg.com,mostly older browsers and mobile browsers
 app.use(
     helmet({
         contentSecurityPolicy: {
@@ -49,6 +49,9 @@ app.use(
 app.use(cors()); // Enable CORS for all routes
 app.use(express.json());
 app.use(cookieParser());
+
+
+app.use(express.static(path.join(__dirname, 'swagger-assets')));/////////////////////////////experimental
 
 
 //  middleware for request logging
