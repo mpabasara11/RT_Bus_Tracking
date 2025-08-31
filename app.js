@@ -22,7 +22,7 @@ const busOperatorRoutes = require('./route_files/busOperator.js')
 const commuterRoutes = require('./route_files/commuter.js')
 
 
-//app.use(helmet()); // Use Helmet to enhance API's security  
+app.use(helmet()); // Use Helmet to enhance API's security  
 
 
 
