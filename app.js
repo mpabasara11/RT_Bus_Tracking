@@ -26,9 +26,9 @@ const commuterRoutes = require('./route_files/commuter.js')
 
 
 
-//app.use(helmet()); // Use Helmet to enhance API's security  
+// Use Helmet to enhance API's security  
 // Configure Helmet with a custom Content Security Policy
-//still some browbsers may refuce to load resources from unpkg.com,mostly older browsers and mobile browsers
+//still some browbsers may refuce to load resources from unpkg.com,mostly older browsers and mobile browsers and swagger ui itself may not load in some browsers
 app.use(
     helmet({
         contentSecurityPolicy: {
@@ -40,9 +40,6 @@ app.use(
         },
     })
 );
-
-
-
 
 
 
@@ -76,8 +73,6 @@ app.get('/api-docs', (req, res) => {
 /////////////////////////////////////////////////////////////////////////////////////////
 
 
-// Swagger UI Route
-//app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 
