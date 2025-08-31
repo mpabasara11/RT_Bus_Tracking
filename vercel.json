@@ -8,13 +8,6 @@
     ],
     "routes": [
         {
-            "src": "/api-docs/(.*)",
-            "dest": "app.js",
-            "headers": {
-                "Content-Security-Policy": "script-src 'self' https://unpkg.com 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://unpkg.com;"
-            }
-        },
-        {
             "src": "/(.*)",
             "dest": "app.js"
         }
