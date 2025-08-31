@@ -69,6 +69,8 @@ app.get('/swagger.json', (req, res) => {
     res.json(swaggerSpec);
 });
 
+
+const path = require('path');
 // Serve Swagger UI HTML
 app.get('/api-docs', (req, res) => {
     res.sendFile(path.join(__dirname, 'swagger.html'));
