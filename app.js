@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 //const bcrypt = require('bcrypt');
 const { swaggerUi, swaggerSpec } = require('./swagger');
+const path = require('path');
 
 
 
@@ -62,7 +63,7 @@ app.use((req, res, next) => {
 
 ///////////////////////////////////////// swagger static html handling /////////////////////////
 
-const path = require('path');
+
 
 // Serve raw OpenAPI spec
 app.get('/swagger.json', (req, res) => {
@@ -70,7 +71,7 @@ app.get('/swagger.json', (req, res) => {
 });
 
 
-const path = require('path');
+
 // Serve Swagger UI HTML
 app.get('/api-docs', (req, res) => {
     res.sendFile(path.join(__dirname, 'swagger.html'));
